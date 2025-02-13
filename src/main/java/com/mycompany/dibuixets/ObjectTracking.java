@@ -1,6 +1,7 @@
 package com.mycompany.dibuixets;
 
 import com.mycompany.dibuixets.dll.Constants;
+import static com.mycompany.dibuixets.dll.Preferences.getOpenCVPath;
 import org.opencv.core.Core;
 import org.opencv.core.Rect;
 import org.opencv.core.Mat;
@@ -28,7 +29,7 @@ import java.awt.image.BufferedImage;
  * @since 2025-02-13
  */
 public class ObjectTracking extends JPanel {
-    static { System.load(Constants.FILE_PATH); } // Carrega la llibreria OpenCV
+    static { System.load(getOpenCVPath()); } // Carrega la llibreria OpenCV
 
     private Rect roi = null; // Regió d'interès (ROI) per al seguiment
     private Point startPoint = null; // Punt inicial per seleccionar la ROI

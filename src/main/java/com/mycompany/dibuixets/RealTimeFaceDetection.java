@@ -1,6 +1,7 @@
 package com.mycompany.dibuixets;
 
 import com.mycompany.dibuixets.dll.Constants;
+import static com.mycompany.dibuixets.dll.Preferences.getOpenCVPath;
 import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.objdetect.CascadeClassifier;
@@ -43,7 +44,7 @@ public class RealTimeFaceDetection extends JPanel {
      * </p>
      */
     public RealTimeFaceDetection() {
-        System.load(Constants.FILE_PATH); // Carrega la llibreria OpenCV
+        System.load(getOpenCVPath()); // Carrega la llibreria OpenCV
 
         camera = new VideoCapture(0); // Inicialitza la càmera
         frame = new Mat(); // Matriu per emmagatzemar els fotogrames capturats

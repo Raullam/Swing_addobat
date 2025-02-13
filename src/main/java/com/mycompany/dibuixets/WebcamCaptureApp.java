@@ -1,6 +1,7 @@
 package com.mycompany.dibuixets;
 
 import com.mycompany.dibuixets.dll.Constants;
+import static com.mycompany.dibuixets.dll.Preferences.getOpenCVPath;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -79,7 +80,7 @@ public class WebcamCaptureApp extends JFrame {
      */
     public void start() {
         // Cargar la librería de OpenCV
-        System.load(Constants.FILE_PATH);
+        System.load(getOpenCVPath());
         capture = new VideoCapture(0);  // Inicia la captura de video
         frame = new Mat();
 

@@ -1,6 +1,7 @@
 package com.mycompany.dibuixets;
 
 import com.mycompany.dibuixets.dll.Constants;
+import static com.mycompany.dibuixets.dll.Preferences.getOpenCVPath;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
 import org.opencv.core.*;
@@ -40,7 +41,7 @@ public class TextRecognition extends JPanel {
      */
     public TextRecognition() {
         // Cargar OpenCV
-        System.load(Constants.FILE_PATH);
+        System.load(getOpenCVPath());
 
         // Inicializar la cámara
         camera = new VideoCapture(0, Videoio.CAP_DSHOW);

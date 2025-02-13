@@ -1,6 +1,7 @@
 package com.mycompany.dibuixets;
 
 import com.mycompany.dibuixets.dll.Constants;
+import static com.mycompany.dibuixets.dll.Preferences.getOpenCVPath;
 import org.opencv.core.*;
 import org.opencv.videoio.VideoCapture;
 import org.opencv.imgproc.Imgproc;
@@ -41,7 +42,7 @@ public class Croma extends JPanel {
      * </p>
      */
     public Croma() {
-        System.load(Constants.FILE_PATH);
+        System.load(getOpenCVPath());
 
         capture = new VideoCapture(0);
         frame = new Mat();

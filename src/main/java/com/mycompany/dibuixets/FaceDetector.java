@@ -5,6 +5,7 @@
 package com.mycompany.dibuixets;
 
 import com.mycompany.dibuixets.dll.Constants;
+import static com.mycompany.dibuixets.dll.Preferences.getOpenCVPath;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
 import org.opencv.core.Rect;
@@ -35,7 +36,7 @@ public class FaceDetector {
      */
     public static void main(String[] args){
         // Cargar la librería de OpenCV
-        System.load(Constants.FILE_PATH);
+        System.load(getOpenCVPath());
         
         // Leer la imagen desde el disco
         Mat image = Imgcodecs.imread("images/,,nk.jpg");
