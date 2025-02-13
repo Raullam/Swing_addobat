@@ -7,9 +7,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Preferences {
-    // Ruta predeterminada de OpenCV (modifica esto según tu instalación)
-    private static final String DEFAULT_OPENCV_PATH = "C:\\Users\\Rulox\\Downloads\\Nueva carpeta (83)\\dibuxets222\\dibuixets\\src\\main\\java\\com\\mycompany\\dibuixets\\dll\\opencv_java490.dll";
-
     public static String getOpenCVPath() {
         File preferenciasFolder = new File("data");
         if (!preferenciasFolder.exists()) {
@@ -27,31 +24,31 @@ public class Preferences {
                         preferencias.put(parts[0], parts[1]);
                     }
                 }
-                if (preferencias.containsKey("opencv") && new File(preferencias.get("opencv")).exists()) {
-                    return preferencias.get("opencv");
+                if (preferencias.containsKey("opencv") && preferencias.get("opencv").endsWith("opencv_java490.dll")) {
+                    try {
+                        File file = new File(preferencias.get("opencv"));
+                        return preferencias.get("opencv");
+                    }
+                    catch (Exception e){
+                        getNewRoute(preferenciasFile);
+                    }
                 }
             } catch (Exception ex) {
                 Logger.getLogger(Preferences.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-
-        // Si no hay una ruta válida, intenta usar la ruta predeterminada
-        if (new File(DEFAULT_OPENCV_PATH).exists()) {
-            saveOpenCVPath(preferenciasFile, DEFAULT_OPENCV_PATH);
-            return DEFAULT_OPENCV_PATH;
-        }
-
-        // Si la ruta predeterminada no existe, pedir al usuario
+        
         return getNewRoute(preferenciasFile);
     }
-
-    private static String getNewRoute(File preferenciasFile) {
+    
+    private static String getNewRoute(File preferenciasFile){
         JDialog dialog = new JDialog();
         dialog.setAlwaysOnTop(true);
-        JOptionPane.showMessageDialog(dialog, "No se ha encontrado la ruta de OpenCV o no es válida. Por favor, seleccione la librería OpenCV.", "Error", JOptionPane.ERROR_MESSAGE);
-
+        JOptionPane.showMessageDialog(dialog, "No se ha encontrado la ruta de OpenCV o no es valida. Por favor, seleccione la carpeta de OpenCV.", "Error", JOptionPane.ERROR_MESSAGE);
+        
+        // Si no existe la ruta en el archivo, abrir JFileChooser
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Selecciona la librería OpenCV");
+        fileChooser.setDialogTitle("Selecciona la carpeta de OpenCV");
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
         int returnValue = fileChooser.showOpenDialog(null);
@@ -59,18 +56,16 @@ public class Preferences {
             File selectedFile = fileChooser.getSelectedFile();
             String opencvPath = selectedFile.getAbsolutePath();
             
-            saveOpenCVPath(preferenciasFile, opencvPath);
+            // Guardar la nueva preferencia en el archivo
+            try (BufferedWriter bw = new BufferedWriter(new FileWriter(preferenciasFile, true))) {
+                bw.write("opencv," + opencvPath);
+                bw.newLine();
+            } catch (IOException ex) {
+                Logger.getLogger(Preferences.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
             return opencvPath;
         }
         return null;
-    }
-
-    private static void saveOpenCVPath(File preferenciasFile, String opencvPath) {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(preferenciasFile, false))) { // Sobreescribir archivo
-            bw.write("opencv," + opencvPath);
-            bw.newLine();
-        } catch (IOException ex) {
-            Logger.getLogger(Preferences.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
 }

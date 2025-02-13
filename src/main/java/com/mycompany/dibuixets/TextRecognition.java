@@ -24,7 +24,7 @@ import java.io.File;
  * <p> El sistema captura imágenes de la webcam, procesa las imágenes, y realiza OCR cada 6 segundos
  * para extraer texto. Además, el usuario puede guardar la imagen capturada y cerrar la ventana de captura. </p>
  * 
- * @author Usuario
+ * @author Raül, Miquel Angel, Alejandro, Magi
  */
 public class TextRecognition extends JPanel {
     private VideoCapture camera;  // Objeto para capturar video desde la cámara

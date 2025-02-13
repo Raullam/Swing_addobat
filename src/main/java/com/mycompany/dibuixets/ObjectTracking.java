@@ -16,6 +16,17 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
+/**
+ * Classe per al seguiment d'objectes utilitzant la càmera i OpenCV.
+ * <p>
+ * Aquesta classe utilitza la càmera per capturar vídeo en temps real i permet a l'usuari seleccionar una regió d'interès (ROI)
+ * per fer el seguiment d'un objecte. El seguiment es realitza mitjançant el tracker KCF de OpenCV.
+ * </p>
+ * 
+ * @author Raül, Miquel Angel, Alejandro, Magi
+ * @version 1.0
+ * @since 2025-02-13
+ */
 public class ObjectTracking extends JPanel {
     static { System.load(Constants.FILE_PATH); } // Carrega la llibreria OpenCV
 
@@ -28,6 +39,13 @@ public class ObjectTracking extends JPanel {
     private boolean trackingActive = false; // Indica si el seguiment està actiu
     private VideoCapture videoCapture; // Captura de vídeo de la càmera
 
+    /**
+     * Constructor que inicialitza la càmera, configura els listeners per al seguiment d'objectes i comença a capturar el vídeo.
+     * <p>
+     * Aquest constructor configura la càmera, permet a l'usuari seleccionar una ROI amb el ratolí i iniciar el seguiment
+     * d'un objecte mitjançant el tracker KCF de OpenCV.
+     * </p>
+     */
     public ObjectTracking() {
         videoCapture = new VideoCapture(0); // Inicialitza la càmera
 
@@ -91,6 +109,15 @@ public class ObjectTracking extends JPanel {
         }).start();
     }
 
+    /**
+     * Dibuixa el fotograma actual al panell.
+     * <p>
+     * Aquest mètode converteix el fotograma en una imatge i la dibuixa al panell. També dibuixa un rectangle verd al voltant
+     * de la regió d'interès (ROI) si el seguiment està actiu.
+     * </p>
+     * 
+     * @param g El context gràfic utilitzat per dibuixar el fotograma.
+     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -105,7 +132,15 @@ public class ObjectTracking extends JPanel {
         }
     }
 
-    // Converteix una matriu OpenCV a una BufferedImage
+    /**
+     * Converteix una matriu OpenCV en una imatge de tipus BufferedImage.
+     * <p>
+     * Aquesta funció converteix una matriu OpenCV en una imatge compatible amb Swing per poder ser visualitzada en el panell.
+     * </p>
+     * 
+     * @param mat La matriu OpenCV que es vol convertir en una imatge.
+     * @return La imatge convertida de tipus BufferedImage.
+     */
     public BufferedImage Mat2BufferedImage(Mat mat) {
         int width = mat.width();
         int height = mat.height();
@@ -121,11 +156,17 @@ public class ObjectTracking extends JPanel {
         return image;
     }
 
-    // Atura el seguiment i allibera la càmera
+    /**
+     * Atura el seguiment i allibera els recursos associats.
+     * <p>
+     * Aquest mètode atura la captura de vídeo, allibera la càmera i els recursos associats.
+     * </p>
+     */
     public void stop() {
         running = false;
     }
-/*
+
+    /*
     // Mètode main per executar l'aplicació de manera independent
     public static void main(String[] args) {
         JFrame frame = new JFrame("Seguiment d'Objectes (Webcam)");
@@ -143,5 +184,5 @@ public class ObjectTracking extends JPanel {
             }
         });
     }
-*/
+    */
 }

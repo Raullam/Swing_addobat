@@ -10,7 +10,7 @@ import java.awt.event.ActionListener;
  * Classe principal que crea el frame i el menú de l'aplicació.
  * Aquesta classe és el punt d'entrada de la GUI i gestiona la navegació entre els diferents panells.
  *
- * @author [El teu nom aquí]
+ * @author Raül, Miquel Angel, Alejandro, Magi
  * @version 1.0
  * @since 2025-02-11
  */
@@ -60,6 +60,7 @@ public class Mainn {
         JButton button3 = new JButton("Guardar Imatge");
         JButton button4 = new JButton("Paint 2030");
         JButton button5 = new JButton("Object Tracking");
+        JButton button6 = new JButton("Detector de Text"); // Nuevo botón
 
         // Establir el tamany preferit dels botons
         Dimension buttonSize = new Dimension(200, 40);
@@ -68,6 +69,7 @@ public class Mainn {
         button3.setPreferredSize(buttonSize);
         button4.setPreferredSize(buttonSize);
         button5.setPreferredSize(buttonSize);
+        button6.setPreferredSize(buttonSize);  // Tamaño del nuevo botón
 
         // Acció per al botó de Detector de Cares
         button1.addActionListener(e -> {
@@ -90,6 +92,11 @@ public class Mainn {
         // Acció per al botó Object Tracking
         button5.addActionListener(e -> openObjectTrackingPanel(mainFrame));
 
+        // Acció per al nou botó Detector de Text
+        button6.addActionListener(e -> {
+            new TextRecognition(); // Crear i mostrar el panell de TextRecognition
+        });
+
         // Afegir els botons al panell
         buttonPanel.add(button1, gbc);
         gbc.gridy++;
@@ -100,6 +107,8 @@ public class Mainn {
         buttonPanel.add(button4, gbc);
         gbc.gridy++;
         buttonPanel.add(button5, gbc);
+        gbc.gridy++;
+        buttonPanel.add(button6, gbc);  // Afegir el nou botó
 
         JPanel contentPanel = new JPanel(new BorderLayout());
         contentPanel.add(buttonPanel, BorderLayout.CENTER);
@@ -116,11 +125,12 @@ public class Mainn {
         Croma cromaPanel = new Croma();
         mainFrame.getContentPane().removeAll();
         mainFrame.add(cromaPanel, BorderLayout.CENTER);
+        
 
         // Botó per tornar al menú principal
         JButton backButton = new JButton("Tornar");
         backButton.addActionListener(e -> {
-            cromaPanel.stopCapture();
+            cromaPanel.stopCapture2(); 
             resetToMainMenu(mainFrame);
         });
 
@@ -128,7 +138,7 @@ public class Mainn {
         southPanel.add(backButton);
         mainFrame.add(southPanel, BorderLayout.SOUTH);
 
-        refreshFrame(mainFrame, 800, 600);
+        refreshFrame(mainFrame, 650, 600);
     }
 
     /**
@@ -137,7 +147,7 @@ public class Mainn {
      * @param mainFrame El frame principal.
      */
     private static void openDrawingPanel(JFrame mainFrame) {
-        String imagePath = "images/sample.jpg";
+        String imagePath = "images/,,nk.jpg";
         OpenCVDrawingApp2 drawingPanel = new OpenCVDrawingApp2(imagePath);
         drawingPanel.setPreferredSize(new Dimension(1200, 400));
 

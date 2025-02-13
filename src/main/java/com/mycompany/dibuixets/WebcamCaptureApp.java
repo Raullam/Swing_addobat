@@ -27,7 +27,7 @@ import org.opencv.imgproc.Imgproc;
  * y al presionar el botón "Capturar", se guarda la imagen en el disco con el nombre ingresado
  * por el usuario. </p>
  * 
- * @author Usuario
+ * @author Raül, Miquel Angel, Alejandro, Magi
  */
 public class WebcamCaptureApp extends JFrame {
     private JLabel imageLabel;  // Etiqueta para mostrar la imagen capturada

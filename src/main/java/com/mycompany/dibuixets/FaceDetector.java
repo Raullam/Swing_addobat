@@ -23,7 +23,7 @@ import org.opencv.objdetect.Objdetect;
  * Finalmente, dibuja un rectángulo alrededor de las caras detectadas y guarda
  * la imagen con las caras marcadas.
  *
- * @author Usuario
+ * @author Raül, Miquel Angel, Alejandro, Magi
  */
 public class FaceDetector {
     
