@@ -24,15 +24,33 @@ import java.io.File;
  * @since 2025-02-13
  */
 public class Croma extends JPanel {
-    private Mat frame;
-    private BufferedImage bufferedImage;
-    private VideoCapture capture;
-    private Scalar lowerGreen = new Scalar(35, 50, 50);
-    private Scalar upperGreen = new Scalar(85, 255, 255);
-    private boolean cromaActive = false;
-    private boolean capturing = true;
-    private Thread captureThread;
-    private Mat backgroundImage = null;
+    // Matriz que almacenará cada fotograma capturado del video
+private Mat frame;  
+
+// Imagen en formato BufferedImage para su visualización en un componente Swing
+private BufferedImage bufferedImage;  
+
+// Objeto para capturar video desde una cámara o un archivo de video
+private VideoCapture capture;  
+
+// Límite inferior para detectar el color verde en el espacio de color HSV
+private Scalar lowerGreen = new Scalar(35, 50, 50);  
+
+// Límite superior para detectar el color verde en el espacio de color HSV
+private Scalar upperGreen = new Scalar(85, 255, 255);  
+
+// Bandera para indicar si el efecto de croma está activado
+private boolean cromaActive = false;  
+
+// Bandera para controlar si la captura de video sigue en ejecución
+private boolean capturing = true;  
+
+// Hilo separado para ejecutar la captura de video de manera continua
+private Thread captureThread;  
+
+// Imagen de fondo que se usará para reemplazar el color verde
+private Mat backgroundImage = null;  
+
 
     /**
      * Constructor que inicialitza la càmera i els botons per activar el croma i seleccionar el fons.
@@ -103,19 +121,30 @@ public class Croma extends JPanel {
      * </p>
      */
     private void selectBackgroundImage() {
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
-            backgroundImage = Imgcodecs.imread(selectedFile.getAbsolutePath());
-            if (backgroundImage.empty()) {
-                JOptionPane.showMessageDialog(this, "Error al cargar la imagen de fondo.");
-                backgroundImage = null;
-            } else {
-                Imgproc.resize(backgroundImage, backgroundImage, new Size(frame.width(), frame.height()));
-            }
+    // Crear un selector de archivos para que el usuario elija una imagen
+    JFileChooser fileChooser = new JFileChooser();
+    fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY); // Solo permitir la selección de archivos
+
+    // Abrir el diálogo y verificar si el usuario seleccionó un archivo
+    if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+        // Obtener el archivo seleccionado
+        File selectedFile = fileChooser.getSelectedFile();
+
+        // Cargar la imagen seleccionada usando OpenCV
+        backgroundImage = Imgcodecs.imread(selectedFile.getAbsolutePath());
+
+        // Verificar si la imagen se cargó correctamente
+        if (backgroundImage.empty()) {
+            // Mostrar un mensaje de error si la imagen no se pudo cargar
+            JOptionPane.showMessageDialog(this, "Error al cargar la imagen de fondo.");
+            backgroundImage = null; // Establecer la imagen de fondo como nula para evitar errores
+        } else {
+            // Redimensionar la imagen de fondo para que coincida con el tamaño del frame
+            Imgproc.resize(backgroundImage, backgroundImage, new Size(frame.width(), frame.height()));
         }
     }
+}
+
 
     /**
      * Aplica l'efecte de croma per substituir el fons verd per una altra imatge.
@@ -127,34 +156,42 @@ public class Croma extends JPanel {
      * @param frame El frame actual de la càmera a modificar.
      */
     private void applyChromaKeyEffect(Mat frame) {
-        Mat hsvImage = new Mat();
-        Imgproc.cvtColor(frame, hsvImage, Imgproc.COLOR_BGR2HSV);
+    // Crear una nueva matriz para almacenar la imagen en el espacio de color HSV
+    Mat hsvImage = new Mat();
+    Imgproc.cvtColor(frame, hsvImage, Imgproc.COLOR_BGR2HSV);
 
-        Mat mask = new Mat();
-        Core.inRange(hsvImage, lowerGreen, upperGreen, mask);
+    // Crear una máscara binaria para detectar el color verde dentro del rango especificado
+    Mat mask = new Mat();
+    Core.inRange(hsvImage, lowerGreen, upperGreen, mask);
 
-        Mat invMask = new Mat();
-        Core.bitwise_not(mask, invMask);
+    // Invertir la máscara para obtener las áreas que no son verdes
+    Mat invMask = new Mat();
+    Core.bitwise_not(mask, invMask);
 
-        Mat foreground = new Mat();
-        frame.copyTo(foreground, invMask);
+    // Extraer el primer plano (todo excepto el fondo verde)
+    Mat foreground = new Mat();
+    frame.copyTo(foreground, invMask);
 
-        Mat backgroundResized = new Mat();
-        Imgproc.resize(backgroundImage, backgroundResized, frame.size());
+    // Redimensionar la imagen de fondo para que coincida con el tamaño del frame de entrada
+    Mat backgroundResized = new Mat();
+    Imgproc.resize(backgroundImage, backgroundResized, frame.size());
 
-        Mat background = new Mat();
-        backgroundResized.copyTo(background, mask);
+    // Extraer el fondo solo en las áreas donde estaba el color verde
+    Mat background = new Mat();
+    backgroundResized.copyTo(background, mask);
 
-        Core.add(foreground, background, frame);
+    // Combinar el primer plano y el fondo para generar la imagen final
+    Core.add(foreground, background, frame);
 
-        // Alliberar matrius per evitar pèrdues de memòria
-        hsvImage.release();
-        mask.release();
-        invMask.release();
-        foreground.release();
-        backgroundResized.release();
-        background.release();
-    }
+    // Liberar memoria de las matrices para evitar pérdidas de memoria
+    hsvImage.release();
+    mask.release();
+    invMask.release();
+    foreground.release();
+    backgroundResized.release();
+    background.release();
+}
+
 
     /**
      * Dibuixa el frame actual en el panell.
