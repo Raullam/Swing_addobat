@@ -7,8 +7,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
- * Classe principal que crea el frame i el menú de l'aplicació.
- * Aquesta classe és el punt d'entrada de la GUI i gestiona la navegació entre els diferents panells.
+ * Classe principal que crea el frame i el menú de l'aplicació. Aquesta classe
+ * és el punt d'entrada de la GUI i gestiona la navegació entre els diferents
+ * panells.
  *
  * @author Raül, Miquel Angel, Alejandro, Magi
  * @version 1.0
@@ -17,9 +18,11 @@ import java.awt.event.ActionListener;
 public class Mainn {
 
     /**
-     * Mètode principal que inicialitza el programa i carrega la llibreria OpenCV.
-     * 
-     * @param args Arguments de la línia de comandes (no utilitzats en aquest cas).
+     * Mètode principal que inicialitza el programa i carrega la llibreria
+     * OpenCV.
+     *
+     * @param args Arguments de la línia de comandes (no utilitzats en aquest
+     * cas).
      */
     public static void main(String[] args) {
         // Carregar la llibreria OpenCV
@@ -42,7 +45,8 @@ public class Mainn {
     }
 
     /**
-     * Crea el menú principal amb botons per accedir a les diferents funcionalitats.
+     * Crea el menú principal amb botons per accedir a les diferents
+     * funcionalitats.
      *
      * @param mainFrame El frame principal que conté els botons.
      * @return Un JPanel amb els botons del menú principal.
@@ -54,22 +58,32 @@ public class Mainn {
         gbc.gridy = 0;
         gbc.insets = new Insets(5, 5, 5, 5);
 
-        // Crear els botons de funcionalitats
-        JButton button1 = new JButton("Detector de Cares");
-        JButton button2 = new JButton("Croma");
-        JButton button3 = new JButton("Guardar Imatge");
-        JButton button4 = new JButton("Paint 2030");
-        JButton button5 = new JButton("Object Tracking");
-        JButton button6 = new JButton("Detector de Text"); // Nuevo botón
+        // Cargar iconos
+        // Cargar iconos y redimensionarlos
+        ImageIcon faceIcon = resizeIcon(new ImageIcon("images/face.png"), 30, 30);
+        ImageIcon cromaIcon = resizeIcon(new ImageIcon("images/croma.png"), 30, 30);
+        ImageIcon saveIcon = resizeIcon(new ImageIcon("images/save.png"), 30, 30);
+        ImageIcon paintIcon = resizeIcon(new ImageIcon("images/paint.png"), 30, 30);
+        ImageIcon trackIcon = resizeIcon(new ImageIcon("images/tracking.png"), 30, 30);
+        ImageIcon textIcon = resizeIcon(new ImageIcon("images/text.png"), 30, 30);
 
-        // Establir el tamany preferit dels botons
-        Dimension buttonSize = new Dimension(200, 40);
-        button1.setPreferredSize(buttonSize);
-        button2.setPreferredSize(buttonSize);
-        button3.setPreferredSize(buttonSize);
-        button4.setPreferredSize(buttonSize);
-        button5.setPreferredSize(buttonSize);
-        button6.setPreferredSize(buttonSize);  // Tamaño del nuevo botón
+        // Crear botones con iconos
+        JButton button1 = new JButton("Detector de Cares", faceIcon);
+        JButton button2 = new JButton("Croma", cromaIcon);
+        JButton button3 = new JButton("Guardar Imatge", saveIcon);
+        JButton button4 = new JButton("Paint 2030", paintIcon);
+        JButton button5 = new JButton("Object Tracking", trackIcon);
+        JButton button6 = new JButton("Detector de Text", textIcon);
+
+        // Configurar botones
+        Dimension buttonSize = new Dimension(220, 50);
+        JButton[] buttons = {button1, button2, button3, button4, button5, button6};
+
+        for (JButton button : buttons) {
+            button.setPreferredSize(buttonSize);
+            button.setIconTextGap(10); // Espaciado entre icono y texto
+            button.setHorizontalTextPosition(SwingConstants.RIGHT);
+        }
 
         // Acció per al botó de Detector de Cares
         button1.addActionListener(e -> {
@@ -116,6 +130,12 @@ public class Mainn {
         return contentPanel;
     }
 
+    private static ImageIcon resizeIcon(ImageIcon icon, int width, int height) {
+        Image img = icon.getImage();
+        Image scaledImg = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        return new ImageIcon(scaledImg);
+    }
+
     /**
      * Obre el panell del Croma en el frame principal.
      *
@@ -125,12 +145,11 @@ public class Mainn {
         Croma cromaPanel = new Croma();
         mainFrame.getContentPane().removeAll();
         mainFrame.add(cromaPanel, BorderLayout.CENTER);
-        
 
         // Botó per tornar al menú principal
         JButton backButton = new JButton("Tornar");
         backButton.addActionListener(e -> {
-            cromaPanel.stopCapture2(); 
+            cromaPanel.stopCapture2();
             resetToMainMenu(mainFrame);
         });
 
