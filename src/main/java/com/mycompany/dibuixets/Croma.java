@@ -1,6 +1,5 @@
 package com.mycompany.dibuixets;
 
-import com.mycompany.dibuixets.dll.Constants;
 import static com.mycompany.dibuixets.dll.Preferences.getOpenCVPath;
 import org.opencv.core.*;
 import org.opencv.videoio.VideoCapture;

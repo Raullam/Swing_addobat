@@ -1,1 +1,0 @@
-opencv,C:\Users\Rulox\Downloads\Nueva carpeta (83)\dibuxets222\dibuixets\src\main\java\com\mycompany\dibuixets\dll\opencv_java490.dll
