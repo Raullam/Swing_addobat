@@ -259,63 +259,79 @@ public class OpenCVDrawingApp2 extends JPanel {
         JPanel controlPanel = new JPanel();
         controlPanel.setLayout(new FlowLayout());
 
-        // Agregar botones de control
-        JButton lineButton = new JButton("Línea");
-        lineButton.addActionListener(e -> setDrawingMode(panel, "LINE", false, false));
-        controlPanel.add(lineButton);
+        // Crear la barra de menús
+        JMenuBar menuBar = new JMenuBar();
 
-        JButton circleButton = new JButton("Círculo");
-        circleButton.addActionListener(e -> setDrawingMode(panel, "CIRCLE", false, false));
-        controlPanel.add(circleButton);
-
-        JButton rectangleButton = new JButton("Rectángulo");
-        rectangleButton.addActionListener(e -> setDrawingMode(panel, "RECTANGLE", false, false));
-        controlPanel.add(rectangleButton);
-
-        JButton arrowButton = new JButton("Flecha");
-        arrowButton.addActionListener(e -> setDrawingMode(panel, "ARROW", false, false));
-        controlPanel.add(arrowButton);
-
-        JButton freeDrawButton = new JButton("Dibujo libre");
-        freeDrawButton.addActionListener(e -> setDrawingMode(panel, "", true, false));
-        controlPanel.add(freeDrawButton);
-
-        JButton eraseButton = new JButton("Goma");
-        eraseButton.addActionListener(e -> setDrawingMode(panel, "", false, true));
-        controlPanel.add(eraseButton);
+        // Crear el menú de herramientas
+        JMenu toolsMenu = new JMenu("Herramientas");
         
-        JButton clearButton = new JButton("Borrar Todo");
-        clearButton.addActionListener(e -> panel.clearCanvas()); // ✅ Botón para restaurar la imagen
-        controlPanel.add(clearButton);
+        // Añadir las opciones al menú de herramientas
+        JMenuItem lineButton = new JMenuItem("Línea");
+        lineButton.addActionListener(e -> setDrawingMode(panel, "LINE", false, false));
+        toolsMenu.add(lineButton);
 
-        JButton undoButton = new JButton("Deshacer");
+        JMenuItem circleButton = new JMenuItem("Círculo");
+        circleButton.addActionListener(e -> setDrawingMode(panel, "CIRCLE", false, false));
+        toolsMenu.add(circleButton);
+
+        JMenuItem rectangleButton = new JMenuItem("Rectángulo");
+        rectangleButton.addActionListener(e -> setDrawingMode(panel, "RECTANGLE", false, false));
+        toolsMenu.add(rectangleButton);
+
+        JMenuItem arrowButton = new JMenuItem("Flecha");
+        arrowButton.addActionListener(e -> setDrawingMode(panel, "ARROW", false, false));
+        toolsMenu.add(arrowButton);
+
+        JMenuItem freeDrawButton = new JMenuItem("Dibujo libre");
+        freeDrawButton.addActionListener(e -> setDrawingMode(panel, "", true, false));
+        toolsMenu.add(freeDrawButton);
+
+        JMenuItem eraseButton = new JMenuItem("Goma");
+        eraseButton.addActionListener(e -> setDrawingMode(panel, "", false, true));
+        toolsMenu.add(eraseButton);
+        
+        menuBar.add(toolsMenu);
+
+        // Crear el menú de acciones
+        JMenu actionsMenu = new JMenu("Acciones");
+
+        JMenuItem clearButton = new JMenuItem("Borrar Todo");
+        clearButton.addActionListener(e -> panel.clearCanvas());
+        actionsMenu.add(clearButton);
+
+        JMenuItem undoButton = new JMenuItem("Deshacer");
         undoButton.addActionListener(e -> panel.undo());
-        controlPanel.add(undoButton);
+        actionsMenu.add(undoButton);
 
-        JButton redoButton = new JButton("Rehacer");
+        JMenuItem redoButton = new JMenuItem("Rehacer");
         redoButton.addActionListener(e -> panel.redo());
-        controlPanel.add(redoButton);
+        actionsMenu.add(redoButton);
 
-        JButton colorButton = new JButton("Color");
+        JMenuItem colorButton = new JMenuItem("Color");
         colorButton.addActionListener(e -> {
             Color newColor = JColorChooser.showDialog(panel, "Seleccionar Color", panel.currentColor);
             if (newColor != null) {
                 panel.currentColor = newColor;
             }
         });
-        controlPanel.add(colorButton);
+        actionsMenu.add(colorButton);
+      
+        JMenuItem saveButton = new JMenuItem("Guardar");
+        saveButton.addActionListener(e -> panel.saveImage());
+        actionsMenu.add(saveButton);
 
+        JMenuItem loadButton = new JMenuItem("Cargar Imagen");
+        loadButton.addActionListener(e -> panel.loadImage());
+        actionsMenu.add(loadButton);
+
+        menuBar.add(actionsMenu);
+
+        // Añadir la barra de menús al panel de controles
+        controlPanel.add(menuBar);
+        
         JSlider thicknessSlider = new JSlider(1, 20, panel.strokeWidth);
         thicknessSlider.addChangeListener(e -> panel.strokeWidth = thicknessSlider.getValue());
         controlPanel.add(thicknessSlider);
-
-        JButton saveButton = new JButton("Guardar");
-        saveButton.addActionListener(e -> panel.saveImage());
-        controlPanel.add(saveButton);
-
-        JButton loadButton = new JButton("Cargar Imagen");
-        loadButton.addActionListener(e -> panel.loadImage());
-        controlPanel.add(loadButton);
 
         return controlPanel;
     }

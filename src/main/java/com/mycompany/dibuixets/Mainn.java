@@ -166,23 +166,33 @@ public class Mainn {
      * @param mainFrame El frame principal.
      */
     private static void openDrawingPanel(JFrame mainFrame) {
-        String imagePath = "images/,,nk.jpg";
-        OpenCVDrawingApp2 drawingPanel = new OpenCVDrawingApp2(imagePath);
-        drawingPanel.setPreferredSize(new Dimension(1200, 400));
+    String imagePath = "images/,,nk.jpg";
 
-        mainFrame.getContentPane().removeAll();
-        mainFrame.add(drawingPanel, BorderLayout.WEST);
+    // Cargar la imagen para obtener sus dimensiones
+    ImageIcon imageIcon = new ImageIcon(imagePath);
+    int imageWidth = imageIcon.getIconWidth();
+    int imageHeight = imageIcon.getIconHeight();
 
-        JPanel controlPanel = OpenCVDrawingApp2.createControlPanel(drawingPanel);
+    // Crear el panel de dibujo y ajustar su tamaño a la imagen
+    OpenCVDrawingApp2 drawingPanel = new OpenCVDrawingApp2(imagePath);
+    drawingPanel.setPreferredSize(new Dimension(imageWidth, imageHeight));
 
-        JButton backButton = new JButton("Tornar");
-        backButton.addActionListener(e -> resetToMainMenu(mainFrame));
+    mainFrame.getContentPane().removeAll();
+    mainFrame.add(drawingPanel, BorderLayout.WEST);
 
-        controlPanel.add(backButton);
-        mainFrame.add(controlPanel, BorderLayout.SOUTH);
+    // Crear el panel de control
+    JPanel controlPanel = OpenCVDrawingApp2.createControlPanel(drawingPanel);
 
-        refreshFrame(mainFrame, 1200, 500);
-    }
+    // Botón de regreso
+    JButton backButton = new JButton("Tornar");
+    backButton.addActionListener(e -> resetToMainMenu(mainFrame));
+
+    controlPanel.add(backButton);
+    mainFrame.add(controlPanel, BorderLayout.SOUTH);
+
+    // Ajustar el tamaño del frame para que encaje con el panel de dibujo y el panel de control
+    refreshFrame(mainFrame, imageWidth, imageHeight + 50);  // Ajustamos la altura para el control panel
+}
 
     /**
      * Obre el panell de seguiment d'objectes en el frame principal.
