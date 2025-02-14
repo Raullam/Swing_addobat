@@ -9,23 +9,30 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.util.Stack;
+import javax.imageio.ImageIO;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 
 /**
- * La clase {@code OpenCVDrawingApp2} permite dibujar sobre una imagen cargada usando OpenCV,
- * con varias formas y opciones de edición como deshacer, rehacer, borrado y dibujo libre.
- * La interfaz gráfica está construida con Swing y permite realizar diferentes operaciones de dibujo
- * sobre la imagen cargada, así como guardar los cambios realizados.
+ * La clase {@code OpenCVDrawingApp2} permite dibujar sobre una imagen cargada
+ * usando OpenCV, con varias formas y opciones de edición como deshacer,
+ * rehacer, borrado y dibujo libre. La interfaz gráfica está construida con
+ * Swing y permite realizar diferentes operaciones de dibujo sobre la imagen
+ * cargada, así como guardar los cambios realizados.
  *
- * <p>La clase también implementa un panel adicional que se puede hacer visible o invisible según lo desee el usuario.</p>
+ * <p>
+ * La clase también implementa un panel adicional que se puede hacer visible o
+ * invisible según lo desee el usuario.</p>
  *
  * @author Usuario
  */
 public class OpenCVDrawingApp2 extends JPanel {
+
     private Mat image;  // Imagen cargada para realizar dibujos sobre ella
+    private Mat originalImage; // 📌 Imatge original per restaurar zones esborrades
     private BufferedImage bufferedImage;  // Imagen en formato BufferedImage para mostrar en la interfaz gráfica
     private Point lastPoint;  // Última posición del ratón durante el dibujo
     private Color currentColor = Color.RED;  // Color actual para el dibujo
@@ -40,15 +47,16 @@ public class OpenCVDrawingApp2 extends JPanel {
     private JPanel myPanel;  // Panel adicional que se puede hacer visible o invisible
 
     /**
-     * Constructor de la clase {@code OpenCVDrawingApp2}.
-     * Inicializa la imagen, el panel y las configuraciones de los eventos del ratón.
-     * 
+     * Constructor de la clase {@code OpenCVDrawingApp2}. Inicializa la imagen,
+     * el panel y las configuraciones de los eventos del ratón.
+     *
      * @param imagePath La ruta de la imagen que se desea cargar y modificar.
      */
     public OpenCVDrawingApp2(String imagePath) {
         // Inicialización de la imagen y demás
         System.load(getOpenCVPath());
         image = Imgcodecs.imread(imagePath);
+        originalImage = image.clone();  // ✅ Ahora se inicializa correctamente
         resizeImage();
         bufferedImage = matToBufferedImage(image);
 
@@ -98,8 +106,8 @@ public class OpenCVDrawingApp2 extends JPanel {
     }
 
     /**
-     * Redimensiona la imagen para ajustarse a un tamaño máximo de 800x800 píxeles
-     * mientras mantiene la proporción original de la imagen.
+     * Redimensiona la imagen para ajustarse a un tamaño máximo de 800x800
+     * píxeles mientras mantiene la proporción original de la imagen.
      */
     private void resizeImage() {
         int maxWidth = 800;
@@ -125,11 +133,12 @@ public class OpenCVDrawingApp2 extends JPanel {
     }
 
     /**
-     * Dibuja una figura (como un círculo, rectángulo, flecha o línea) entre dos puntos
-     * sobre la imagen cargada.
-     * 
+     * Dibuja una figura (como un círculo, rectángulo, flecha o línea) entre dos
+     * puntos sobre la imagen cargada.
+     *
      * @param currentPoint El punto donde termina la figura.
-     * @param finalize Si es {@code true}, guarda el cambio en la pila de deshacer.
+     * @param finalize Si es {@code true}, guarda el cambio en la pila de
+     * deshacer.
      */
     private void drawShape(Point currentPoint, boolean finalize) {
         image = undoStack.peek().clone();
@@ -160,7 +169,7 @@ public class OpenCVDrawingApp2 extends JPanel {
 
     /**
      * Dibuja libremente sobre la imagen cargada, sin formas predeterminadas.
-     * 
+     *
      * @param currentPoint El punto al que se va a dibujar.
      */
     private void drawFreeDraw(Point currentPoint) {
@@ -171,21 +180,38 @@ public class OpenCVDrawingApp2 extends JPanel {
     }
 
     /**
-     * Borra sobre la imagen cargada utilizando un círculo blanco (simulando un borrador).
-     * 
+     * Borra sobre la imagen cargada utilizando un círculo blanco (simulando un
+     * borrador).
+     *
      * @param currentPoint El punto en el que se va a borrar.
      */
     private void erase(Point currentPoint) {
-        Scalar eraserColor = new Scalar(255, 255, 255);
-        Imgproc.circle(image, new org.opencv.core.Point(currentPoint.x, currentPoint.y), strokeWidth * 2, eraserColor, -1);
-        lastPoint = currentPoint;
+        if (image != null && originalImage != null) {
+            Mat roi = originalImage.submat(
+                (int) Math.max(0, currentPoint.y - strokeWidth),
+                (int) Math.min(originalImage.rows(), currentPoint.y + strokeWidth),
+                (int) Math.max(0, currentPoint.x - strokeWidth),
+                (int) Math.min(originalImage.cols(), currentPoint.x + strokeWidth)
+            );
+
+            roi.copyTo(image.submat(
+                (int) Math.max(0, currentPoint.y - strokeWidth),
+                (int) Math.min(image.rows(), currentPoint.y + strokeWidth),
+                (int) Math.max(0, currentPoint.x - strokeWidth),
+                (int) Math.min(image.cols(), currentPoint.x + strokeWidth)
+            ));
+
+            bufferedImage = matToBufferedImage(image);
+            repaint();
+        }
     }
 
     /**
-     * Sobrescribe el método {@code paintComponent} para dibujar la imagen cargada
-     * en el panel.
-     * 
-     * @param g El objeto {@code Graphics} utilizado para dibujar en el componente.
+     * Sobrescribe el método {@code paintComponent} para dibujar la imagen
+     * cargada en el panel.
+     *
+     * @param g El objeto {@code Graphics} utilizado para dibujar en el
+     * componente.
      */
     @Override
     protected void paintComponent(Graphics g) {
@@ -194,25 +220,38 @@ public class OpenCVDrawingApp2 extends JPanel {
     }
 
     /**
-     * Convierte una imagen {@code Mat} de OpenCV a un objeto {@code BufferedImage}.
-     * 
+     * Convierte una imagen {@code Mat} de OpenCV a un objeto
+     * {@code BufferedImage}.
+     *
      * @param mat La imagen {@code Mat} a convertir.
-     * @return Un objeto {@code BufferedImage} equivalente a la imagen {@code Mat}.
+     * @return Un objeto {@code BufferedImage} equivalente a la imagen
+     * {@code Mat}.
      */
     private BufferedImage matToBufferedImage(Mat mat) {
-        int width = mat.width();
-        int height = mat.height();
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
-        byte[] data = new byte[width * height * (int) mat.elemSize()];
-        mat.get(0, 0, data);
-        image.getRaster().setDataElements(0, 0, width, height, data);
-        return image;
-    }
+    int width = mat.width();
+    int height = mat.height();
+    
+    // Convertir de BGR a RGB
+    Mat convertedMat = new Mat();
+    Imgproc.cvtColor(mat, convertedMat, Imgproc.COLOR_BGR2RGB); 
+    
+    // Crear BufferedImage
+    BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
+    byte[] data = new byte[width * height * (int) convertedMat.elemSize()];
+    convertedMat.get(0, 0, data);
+    
+    // Escribir datos en la imagen
+    image.getRaster().setDataElements(0, 0, width, height, data);
+    
+    return image;
+}
+
 
     /**
-     * Crea el panel de controles para la aplicación, permitiendo al usuario elegir
-     * opciones como formas, colores y grosor de la línea, así como las acciones de deshacer y rehacer.
-     * 
+     * Crea el panel de controles para la aplicación, permitiendo al usuario
+     * elegir opciones como formas, colores y grosor de la línea, así como las
+     * acciones de deshacer y rehacer.
+     *
      * @param panel El panel principal de dibujo.
      * @return Un {@code JPanel} con los controles necesarios.
      */
@@ -241,9 +280,13 @@ public class OpenCVDrawingApp2 extends JPanel {
         freeDrawButton.addActionListener(e -> setDrawingMode(panel, "", true, false));
         controlPanel.add(freeDrawButton);
 
-        JButton eraseButton = new JButton("Borrar");
+        JButton eraseButton = new JButton("Goma");
         eraseButton.addActionListener(e -> setDrawingMode(panel, "", false, true));
         controlPanel.add(eraseButton);
+        
+        JButton clearButton = new JButton("Borrar Todo");
+        clearButton.addActionListener(e -> panel.clearCanvas()); // ✅ Botón para restaurar la imagen
+        controlPanel.add(clearButton);
 
         JButton undoButton = new JButton("Deshacer");
         undoButton.addActionListener(e -> panel.undo());
@@ -270,12 +313,17 @@ public class OpenCVDrawingApp2 extends JPanel {
         saveButton.addActionListener(e -> panel.saveImage());
         controlPanel.add(saveButton);
 
+        JButton loadButton = new JButton("Cargar Imagen");
+        loadButton.addActionListener(e -> panel.loadImage());
+        controlPanel.add(loadButton);
+
         return controlPanel;
     }
 
     /**
-     * Configura el modo de dibujo seleccionado, ya sea para formas, dibujo libre o borrado.
-     * 
+     * Configura el modo de dibujo seleccionado, ya sea para formas, dibujo
+     * libre o borrado.
+     *
      * @param panel El panel de dibujo al que se le aplica el modo.
      * @param shape La forma seleccionada para dibujar.
      * @param freeDraw Si se está activando el dibujo libre.
@@ -285,6 +333,12 @@ public class OpenCVDrawingApp2 extends JPanel {
         panel.currentShape = shape;
         panel.isFreeDrawing = freeDraw;
         panel.isErasing = erase;
+    }
+
+    public void clearCanvas() {
+        image = originalImage.clone();
+        bufferedImage = matToBufferedImage(image);
+        repaint();
     }
 
     /**
@@ -322,6 +376,41 @@ public class OpenCVDrawingApp2 extends JPanel {
         if (userChoice == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
             Imgcodecs.imwrite(file.getAbsolutePath(), image);
+        }
+    }
+
+    public void loadImage() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Selecciona una imagen");
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Imágenes", "jpg", "png", "bmp"));
+
+        int result = fileChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            Mat newImage = Imgcodecs.imread(selectedFile.getAbsolutePath());
+
+            if (newImage != null && !newImage.empty()) {
+                // Limpiar las pilas de deshacer y rehacer
+                undoStack.clear();
+                redoStack.clear();
+
+                // Asignar la nueva imagen
+                image = newImage;
+                originalImage = image.clone();
+                resizeImage();
+                bufferedImage = matToBufferedImage(image);
+
+                // Actualizar el tamaño preferido del panel
+                setPreferredSize(new Dimension(image.width(), image.height()));
+
+                // Agregar la nueva imagen a la pila de deshacer
+                undoStack.push(image.clone());
+
+                // Repintar el panel para mostrar la nueva imagen
+                repaint();
+            } else {
+                JOptionPane.showMessageDialog(this, "No se pudo cargar la imagen.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 }

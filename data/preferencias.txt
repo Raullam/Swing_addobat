@@ -1,0 +1,2 @@
+opencv,C:\Users\aleja\Desktop\Raul2\Swing_addobat-main.zip
+opencv,C:\Users\aleja\Desktop\Raul2\Swing_addobat-main\src\main\java\com\mycompany\dibuixets\dll\opencv_java490.dll

@@ -24,7 +24,7 @@ public class Preferences {
                         preferencias.put(parts[0], parts[1]);
                     }
                 }
-                if (preferencias.containsKey("opencv") && preferencias.get("opencv").endsWith("opencv_java490.dll")) {
+                if (preferencias.containsKey("opencv") && ((preferencias.get("opencv").endsWith("opencv_java490.dll"))||(preferencias.get("opencv").endsWith("libopencv_java460.so")))) {
                     try {
                         File file = new File(preferencias.get("opencv"));
                         return preferencias.get("opencv");
