@@ -1,0 +1,1 @@
+opencv,C:\Users\34666\Downloads\opencv\build\java\x64\opencv_java490.dll

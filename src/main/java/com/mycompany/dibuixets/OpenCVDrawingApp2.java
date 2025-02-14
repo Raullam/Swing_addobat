@@ -26,6 +26,8 @@ import org.opencv.core.Scalar;
  */
 public class OpenCVDrawingApp2 extends JPanel {
     private Mat image;  // Imagen cargada para realizar dibujos sobre ella
+    private Mat originalImage; // 📌 Imatge original per restaurar zones esborrades
+
     private BufferedImage bufferedImage;  // Imagen en formato BufferedImage para mostrar en la interfaz gráfica
     private Point lastPoint;  // Última posición del ratón durante el dibujo
     private Color currentColor = Color.RED;  // Color actual para el dibujo
@@ -49,7 +51,10 @@ public class OpenCVDrawingApp2 extends JPanel {
         // Inicialización de la imagen y demás
         System.load(getOpenCVPath());
         image = Imgcodecs.imread(imagePath);
+        originalImage = image.clone();  // ✅ Ahora se inicializa correctamente
+
         resizeImage();
+
         bufferedImage = matToBufferedImage(image);
 
         setPreferredSize(new Dimension(image.width(), image.height()));
@@ -175,11 +180,8 @@ public class OpenCVDrawingApp2 extends JPanel {
      * 
      * @param currentPoint El punto en el que se va a borrar.
      */
-    private void erase(Point currentPoint) {
-        Scalar eraserColor = new Scalar(255, 255, 255);
-        Imgproc.circle(image, new org.opencv.core.Point(currentPoint.x, currentPoint.y), strokeWidth * 2, eraserColor, -1);
-        lastPoint = currentPoint;
-    }
+    
+
 
     /**
      * Sobrescribe el método {@code paintComponent} para dibujar la imagen cargada
@@ -221,6 +223,15 @@ public class OpenCVDrawingApp2 extends JPanel {
         controlPanel.setLayout(new FlowLayout());
 
         // Agregar botones de control
+        JButton clearButton = new JButton("Borrar Todo");
+        clearButton.addActionListener(e -> panel.clearCanvas()); // ✅ Botón para restaurar la imagen
+        controlPanel.add(clearButton);
+
+        JButton eraseButton = new JButton("Goma");
+        eraseButton.addActionListener(e -> setDrawingMode(panel, "", false, true));
+        controlPanel.add(eraseButton);
+        
+        controlPanel.add(eraseButton);
         JButton lineButton = new JButton("Línea");
         lineButton.addActionListener(e -> setDrawingMode(panel, "LINE", false, false));
         controlPanel.add(lineButton);
@@ -241,7 +252,7 @@ public class OpenCVDrawingApp2 extends JPanel {
         freeDrawButton.addActionListener(e -> setDrawingMode(panel, "", true, false));
         controlPanel.add(freeDrawButton);
 
-        JButton eraseButton = new JButton("Borrar");
+        //JButton eraseButton = new JButton("Borrar");
         eraseButton.addActionListener(e -> setDrawingMode(panel, "", false, true));
         controlPanel.add(eraseButton);
 
@@ -286,6 +297,11 @@ public class OpenCVDrawingApp2 extends JPanel {
         panel.isFreeDrawing = freeDraw;
         panel.isErasing = erase;
     }
+    public void clearCanvas() {
+        image = originalImage.clone();
+        bufferedImage = matToBufferedImage(image);
+        repaint();
+    }
 
     /**
      * Deshace la última acción de dibujo realizada.
@@ -322,6 +338,26 @@ public class OpenCVDrawingApp2 extends JPanel {
         if (userChoice == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
             Imgcodecs.imwrite(file.getAbsolutePath(), image);
+        }
+    }
+    private void erase(Point currentPoint) {
+        if (image != null && originalImage != null) {
+            Mat roi = originalImage.submat(
+                (int) Math.max(0, currentPoint.y - strokeWidth),
+                (int) Math.min(originalImage.rows(), currentPoint.y + strokeWidth),
+                (int) Math.max(0, currentPoint.x - strokeWidth),
+                (int) Math.min(originalImage.cols(), currentPoint.x + strokeWidth)
+            );
+
+            roi.copyTo(image.submat(
+                (int) Math.max(0, currentPoint.y - strokeWidth),
+                (int) Math.min(image.rows(), currentPoint.y + strokeWidth),
+                (int) Math.max(0, currentPoint.x - strokeWidth),
+                (int) Math.min(image.cols(), currentPoint.x + strokeWidth)
+            ));
+
+            bufferedImage = matToBufferedImage(image);
+            repaint();
         }
     }
 }
